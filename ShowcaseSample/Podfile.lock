@@ -1,0 +1,16 @@
+PODS:
+  - Showcase (1.1.0)
+
+DEPENDENCIES:
+  - Showcase (from `/Users/a02484320/Desktop/Showcase`)
+
+EXTERNAL SOURCES:
+  Showcase:
+    :path: "/Users/a02484320/Desktop/Showcase"
+
+SPEC CHECKSUMS:
+  Showcase: c12d2c071ef1e8ae7ad8c568b45014791fad9b64
+
+PODFILE CHECKSUM: 7d63cf324ea49bcee79f4bd8ebaf9f1569743829
+
+COCOAPODS: 1.6.1

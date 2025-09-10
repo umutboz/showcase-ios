@@ -1,0 +1,21 @@
+{
+  "name": "Showcase",
+  "version": "1.1.0",
+  "summary": "KocSistem network framework",
+  "description": "A description of KSNetwork",
+  "homepage": "http://bellatrix:8080/tfs/ArgeMimariCollection/OneFrameIOS/_git/Showcase",
+  "authors": {
+    "KoçSistem": "StarForce@kocsistem.com.tr"
+  },
+  "platforms": {
+    "ios": "9.0"
+  },
+  "source": {
+    "git": "http://bellatrix:8080/tfs/ArgeMimariCollection/OneFrameIOS/_git/Showcase",
+    "tag": "1.1.0"
+  },
+  "source_files": "Source/*.swift",
+  "pod_target_xcconfig": {
+    "SWIFT_VERSION": "4"
+  }
+}
