@@ -2,14 +2,14 @@
 import PackageDescription
 
 let package = Package(
-    name: "ShowCase",
+    name: "Showcase",
     platforms: [
         .iOS(.v12)
     ],
     products: [
         .library(
-            name: "ShowCase",
-            targets: ["ShowCase"]
+            name: "Showcase",
+            targets: ["Showcase"]
         ),
     ],
     targets: [
@@ -19,7 +19,7 @@ let package = Package(
         ),
         .testTarget(
             name: "ShowcaseTests",
-            dependencies: ["ShowCase"],
+            dependencies: ["Showcase"],
             path: "Tests/ShowcaseTests"
         ),
     ]
