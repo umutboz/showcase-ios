@@ -119,7 +119,7 @@ extension Showcase {
         
         let textRadius = maxDistance(from: center, to: textBounds)
         let targetRadius = maxDistance(from: center, to: expandedBounds)
-        return max(textRadius, targetRadius) + 40
+        return max(textRadius, targetRadius) + outerCirclePadding
     }
     
     func maxDistance(from point: CGPoint, to rect: CGRect) -> CGFloat {

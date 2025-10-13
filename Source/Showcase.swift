@@ -88,6 +88,7 @@ public class Showcase: UIView {
     @objc public var aniRippleScale: CGFloat = 0.0
     @objc public var aniRippleColor: UIColor?
     @objc public var aniRippleAlpha: CGFloat = 0.0
+    @objc public var outerCirclePadding: CGFloat = 40.0
     // Delegate
     @objc public weak var delegate: ShowcaseDelegate?
     
@@ -104,6 +105,13 @@ public class Showcase: UIView {
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    @objc public var outerCircleScale: CGFloat = 1.0 {
+        didSet {
+            // mantıklı sınırlar (çok küçültüp bozmamak için)
+            outerCircleScale = max(0.5, min(1.5, outerCircleScale))
+        }
+    }
+    
 }
 
 // MARK: - Public APIs
@@ -359,7 +367,7 @@ extension Showcase {
                 return }
             
             if UIDevice.current.userInterfaceIdiom == .pad {
-                radius = 300.0
+                radius = 300.0 * outerCircleScale
             } else {
                 guard let instructionView = instructionView else {
                     print("instructionView is null")
@@ -367,7 +375,11 @@ extension Showcase {
                 guard let targetRippleView = targetRippleView else {
                     print("targetRippleView is null")
                     return }
-                radius = getOuterCircleRadius(center: center, textBounds: instructionView.frame, targetBounds: targetRippleView.frame)
+                // Not: getOuterCircleRadius artık outerCirclePadding kullanacak (aşağıda güncelliyoruz)
+                let base = getOuterCircleRadius(center: center,
+                                                textBounds: instructionView.frame,
+                                                targetBounds: targetRippleView.frame)
+                radius = base * outerCircleScale
             }
             
             backgroundView = UIView(frame: CGRect(x: 0, y: 0, width: radius * 2,height: radius * 2))
