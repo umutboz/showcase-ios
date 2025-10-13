@@ -41,14 +41,28 @@ class ViewController: UIViewController {
         showcase2.delegate = self
         showcase2.targetTintColor = UIColor.red
         showcase2.targetHolderRadius = 50
-        showcase2.targetHolderColor = UIColor.yellow
-        showcase2.aniComeInDuration = 0.3
-        showcase2.backgroundPromptColor = UIColor(hex:"#F6A9000")
-        showcase2.aniRippleColor = UIColor(hex:"#F6A9000")
-        showcase2.aniRippleAlpha = 0.2
+        //showcase2.targetHolderColor = UIColor.yellow
+        //showcase2.aniComeInDuration = 0.3
+        //showcase2.backgroundPromptColor = UIColor(hex:"#F6A9000")
+        //showcase2.aniRippleColor = UIColor(hex:"#F6A9000")
+        //showcase2.aniRippleAlpha = 0.2
         showcase2.primaryText = "Action 1.1"
-        showcase2.secondaryText = "Click here to go into details"
+        showcase2.secondaryText = "Click here to go into details detaylar"
         showcase2.isTapRecognizerForTargetView = true
+        showcase2.primaryTextAlignment = .right
+        showcase2.secondaryTextAlignment = .right
+
+               // Metin balonu konumu: sağa yaklaştır + biraz aşağı indir
+        showcase2.setInstructionHorizontalMargins(left: 32, right: 12) // sağ marjı düşür
+        showcase2.instructionXOffset = 12
+        showcase2.instructionYOffset = 20
+
+               // Dış çember (arka plan balonu) küçültme
+        showcase2.outerCircleScale = 0.85
+        showcase2.outerCirclePadding = 24
+        showcase2.backgroundViewType = .circle
+        showcase2.backgroundPromptColor = .systemBlue
+        showcase2.backgroundPromptColorAlpha = 0.90
         
         sequence.target(showcase1).target(showcase2).start()
     }

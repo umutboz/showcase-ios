@@ -112,13 +112,15 @@ extension Showcase {
     func getOuterCircleRadius(center: CGPoint, textBounds: CGRect, targetBounds: CGRect) -> CGFloat {
         let targetCenterX = targetBounds.midX
         let targetCenterY = targetBounds.midY
-        
+
         let expandedRadius = 1.1 * TARGET_HOLDER_RADIUS
         let expandedBounds = CGRect(x: targetCenterX, y: targetCenterY, width: 0, height: 0)
-        expandedBounds.insetBy(dx: -expandedRadius, dy: -expandedRadius);
-        
+            .insetBy(dx: -expandedRadius, dy: -expandedRadius)
+
         let textRadius = maxDistance(from: center, to: textBounds)
         let targetRadius = maxDistance(from: center, to: expandedBounds)
+
+        // Eskiden sabit +40’tı. Artık dışarıdan ayarlanabilen pay:
         return max(textRadius, targetRadius) + outerCirclePadding
     }
     
