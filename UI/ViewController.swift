@@ -54,9 +54,9 @@ class ViewController: UIViewController {
 
                // Metin balonu konumu: sağa yaklaştır + biraz aşağı indir
         showcase2.setInstructionHorizontalMargins(left: 32, right: 12) // sağ marjı düşür
-        showcase2.instructionXOffset = 12
         showcase2.instructionYOffset = 20
-
+        showcase2.setInstructionHorizontalMargins(left: 24, right: 8) // sağ boşluğu azalt
+        showcase2.instructionXOffset = 24
                // Dış çember (arka plan balonu) küçültme
         showcase2.outerCircleScale = 0.85
         showcase2.outerCirclePadding = 24
