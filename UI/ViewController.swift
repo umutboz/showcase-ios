@@ -27,10 +27,14 @@ class ViewController: UIViewController {
         let showcase1 = Showcase()
         showcase1.tag = 1
         showcase1.setTargetView(view: self.btn)
-        showcase1.primaryText = "Action 3"
-        showcase1.secondaryText = "Click here to go into details"
+        showcase1.primaryText = nil
+        showcase1.secondaryText = "Click here go"
         showcase1.isTapRecognizerForTargetView = false
-        showcase1.outerCircleScale = 0.7
+        showcase1.outerCircleScale = 0.2
+        showcase1.instructionYOffset = 100
+        showcase1.instructionXOffset = 250
+        showcase1.setInstructionHorizontalMargins(left: 150, right: 0)
+        //showcase1.outerCirclePadding = 24
         //showcase1.out
         showcase1.delegate = self
     

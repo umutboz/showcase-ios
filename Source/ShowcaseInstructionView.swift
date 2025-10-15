@@ -128,23 +128,94 @@ public class ShowcaseInstructionView: UIView {
     
     //Calculate width per device
     private func getWidth() -> CGFloat{
-        //superview was left side
-        if (self.superview?.frame.origin.x)! < CGFloat(0) {
-            return frame.width - (frame.minX/2)
-        } else if ((self.superview?.frame.origin.x)! + (self.superview?.frame.size.width)! >
-            UIScreen.main.bounds.width) { //superview was right side
-            return (frame.width - frame.minX)/2
+        guard let sv = self.superview else { return frame.width - frame.minX }
+        if sv.frame.origin.x < 0 {
+            return frame.width - (frame.minX / 2)
+        } else if sv.frame.origin.x + sv.frame.size.width > UIScreen.main.bounds.width {
+            return (frame.width - frame.minX) / 2
         }
         return (frame.width - frame.minX)
     }
+    /// Configures and adds primary label view (title)
+    private func addPrimaryLabelIfNeeded() {
+        // Temizle
+        primaryLabel?.removeFromSuperview()
+        primaryLabel = nil
+        
+        // Title boşsa HİÇ oluşturma (description en üstten başlayacak)
+        guard let text = primaryText, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return
+        }
+        
+        let label = UILabel()
+        // Font
+        if let font = primaryTextFont {
+            label.font = font
+        } else {
+            let size = primaryTextSize ?? ShowcaseInstructionView.PRIMARY_TEXT_SIZE
+            label.font = UIFont.boldSystemFont(ofSize: size)
+        }
+        label.textColor = primaryTextColor
+        label.textAlignment = self.primaryTextAlignment ?? .left
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
+        label.text = text
+        label.frame = CGRect(x: 0, y: 0, width: getWidth(), height: 0)
+        label.sizeToFitHeight()
+        
+        addSubview(label)
+        primaryLabel = label
+    }
+    /// Configures and adds secondary label view (description)
+    private func addSecondaryLabelIfNeeded() {
+        // Temizle
+           secondaryLabel?.removeFromSuperview()
+           secondaryLabel = nil
+
+           guard let text = secondaryText, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+               frame.size.height = 0
+               return
+           }
+
+           let label = UILabel()
+           if let font = secondaryTextFont {
+               label.font = font
+           } else {
+               let size = secondaryTextSize ?? ShowcaseInstructionView.SECONDARY_TEXT_SIZE
+               label.font = UIFont.systemFont(ofSize: size)
+           }
+           label.textColor = secondaryTextColor
+           label.lineBreakMode = .byWordWrapping
+           label.numberOfLines = 0
+           label.text = text
+
+           // --- YENİ: Title yoksa yatay hizayı otomatik .center yap ---
+           if primaryLabel == nil {
+               label.textAlignment = .center
+           } else {
+               label.textAlignment = self.secondaryTextAlignment ?? .left
+           }
+
+           // Y konumu: title varsa altına, yoksa en üstten
+           let startY: CGFloat = (primaryLabel != nil) ? primaryLabel!.frame.height : 0
+           label.frame = CGRect(x: 0, y: startY, width: getWidth(), height: 0)
+           label.sizeToFitHeight()
+           addSubview(label)
+           secondaryLabel = label
+
+           // Toplam yükseklik
+           let totalHeight = startY + label.frame.height
+           frame = CGRect(x: frame.minX, y: frame.minY, width: frame.width, height: totalHeight)
+    }
+    
     
     /// Overrides this to add subviews. They will be drawn when calling show()
     public override func layoutSubviews() {
         super.layoutSubviews()
-        
-        addPrimaryLabel()
-        addSecondaryLabel()
-        
-        subviews.forEach({$0.isUserInteractionEnabled = false})
+              // Baştan kur
+        subviews.forEach { $0.removeFromSuperview() }
+        addPrimaryLabelIfNeeded()
+        addSecondaryLabelIfNeeded()
+        subviews.forEach { $0.isUserInteractionEnabled = false }
     }
 }

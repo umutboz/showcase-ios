@@ -108,7 +108,7 @@ public class Showcase: UIView {
 
     /// Dış çemberi büyüt/küçült (1.0 = eski davranış)
     @objc public var outerCircleScale: CGFloat = 1.0 {
-        didSet { outerCircleScale = max(0.5, min(1.5, outerCircleScale)) }
+        didSet { outerCircleScale = max(0.2, min(2.0, outerCircleScale)) }
     }
 
     // Delegate
