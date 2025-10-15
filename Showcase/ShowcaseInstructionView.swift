@@ -95,39 +95,7 @@ public class ShowcaseInstructionView: UIView {
         addSubview(primaryLabel)
     }
     
-    /// Configures and adds secondary label view
-    private func addSecondaryLabel() {
-        if secondaryLabel != nil  {
-            secondaryLabel?.removeFromSuperview()
-        }
-        secondaryLabel = UILabel()
-        guard let secondaryLabel = secondaryLabel else {
-            return
-        }
-        if let font = secondaryTextFont {
-            secondaryLabel.font = font
-        } else {
-            guard let secondaryTextSize = secondaryTextSize else {
-                print("secondaryTextSize is null")
-                return
-            }
-            secondaryLabel.font = UIFont.systemFont(ofSize: secondaryTextSize)
-        }
-        secondaryLabel.textColor = secondaryTextColor
-        secondaryLabel.textAlignment = self.secondaryTextAlignment ?? .left
-        secondaryLabel.lineBreakMode = NSLineBreakMode.byWordWrapping
-        secondaryLabel.text = secondaryText
-        secondaryLabel.numberOfLines = 0
-        guard let primaryLabel = primaryLabel else { return }
-        
-        secondaryLabel.frame = CGRect(x: 0,
-                                      y: primaryLabel.frame.height,
-                                      width: getWidth(),
-                                      height: 0)
-        secondaryLabel.sizeToFitHeight()
-        addSubview(secondaryLabel)
-        frame = CGRect(x: frame.minX, y: frame.minY, width: frame.width, height: primaryLabel.frame.height + secondaryLabel.frame.height)
-    }
+    /// Configures and adds secondary label vie
     
     //Calculate width per device
     private func getWidth() -> CGFloat{
@@ -169,36 +137,41 @@ public class ShowcaseInstructionView: UIView {
         addSubview(label)
         primaryLabel = label
     }
-    /// Configures and adds secondary label view (description)
     private func addSecondaryLabelIfNeeded() {
         // Temizle
         secondaryLabel?.removeFromSuperview()
         secondaryLabel = nil
 
-        guard let text = secondaryText, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+        guard let text = secondaryText,
+              !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             frame.size.height = 0
             return
         }
 
         let label = UILabel()
+
+        // Font
         if let font = secondaryTextFont {
             label.font = font
         } else {
             let size = secondaryTextSize ?? ShowcaseInstructionView.SECONDARY_TEXT_SIZE
             label.font = UIFont.systemFont(ofSize: size)
         }
+
         label.textColor = secondaryTextColor
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 0
         label.text = text
 
-        // --- YENİ HİZALAMA KURALI ---
-        // 1) Eğer dışarıdan secondaryTextAlignment verilmişse HER ZAMAN onu kullan.
-        // 2) Verilmemiş ve title yoksa -> .center
-        // 3) Verilmemiş ve title varsa -> .left (varsayılan)
+        // --- HİZALAMA ÖNCELİĞİ ---
+        // 1) Eğer Showcase'ten bir hizalama geldiyse (ör. .right), HER ZAMAN onu uygula.
+        // 2) Hizalama gelmediyse ve title YOKSA -> .center
+        // 3) Hizalama gelmediyse ve title VARSA -> .left
         if let explicitAlignment = self.secondaryTextAlignment {
+            // Showcase.swift tarafında secondaryTextAlignment genelde non-optional (.left default).
+            // Dışarıdan .right atanmışsa buraya .right düşer ve her zaman korunur.
             label.textAlignment = explicitAlignment
-        } else if primaryLabel == nil && autoCenterDescriptionWhenNoTitle {
+        } else if primaryLabel == nil {
             label.textAlignment = .center
         } else {
             label.textAlignment = .left
@@ -215,7 +188,7 @@ public class ShowcaseInstructionView: UIView {
         let totalHeight = startY + label.frame.height
         frame = CGRect(x: frame.minX, y: frame.minY, width: frame.width, height: totalHeight)
     }
-    
+
     
     /// Overrides this to add subviews. They will be drawn when calling show()
     public override func layoutSubviews() {

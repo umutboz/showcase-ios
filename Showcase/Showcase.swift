@@ -112,6 +112,11 @@ public class Showcase: UIView {
     }
     @objc public var centerInstructionToOuterCircle: Bool = true
 
+    /// Metin kutusunu dairenin iç çapına sabitle (içine sığdır)
+    @objc public var constrainInstructionInsideCircle: Bool = false
+
+    /// Daire içindeki metin kutusunun iç ped’i
+    @objc public var instructionInsidePadding: CGFloat = 16
     // Delegate
     @objc public weak var delegate: ShowcaseDelegate?
 
@@ -462,16 +467,16 @@ extension Showcase {
         instructionView.primaryTextFont = primaryTextFont
         instructionView.primaryTextSize = primaryTextSize
         instructionView.primaryTextColor = primaryTextColor
-        instructionView.primaryText = primaryText
+
+        // primaryText nil/boşsa default başlığı göstermemek için temizle
+        let cleanedPrimary = (primaryText?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "")
+        instructionView.primaryText = cleanedPrimary.isEmpty ? "" : cleanedPrimary
 
         instructionView.secondaryTextAlignment = secondaryTextAlignment
         instructionView.secondaryTextFont = secondaryTextFont
         instructionView.secondaryTextSize = secondaryTextSize
         instructionView.secondaryTextColor = secondaryTextColor
         instructionView.secondaryText = secondaryText
-
-        // Eğer ShowcaseInstructionView'de bu bayrağı eklediysen default davranışı kontrol eder
-        // instructionView.autoCenterDescriptionWhenNoTitle = true
 
         let isAbove = (getTargetPosition(target: targetView, container: containerView) == .above)
 
@@ -483,36 +488,26 @@ extension Showcase {
             // iPad: instructionView, backgroundView içine ekleniyor
             guard let backgroundView = backgroundView else { print("backgroundView is null"); return }
 
-            // --- Width: sol/sağ marjlarla belirle ---
-            w = backgroundView.bounds.width - (instructionLeftMargin + instructionRightMargin)
-            w = max(0, w)
-
-            // --- Y konumu (üst/alt) + instructionYOffset ---
+            // Y konumu (üst/alt) + instructionYOffset
             if isAbove {
                 y = (backgroundView.bounds.height / 2) + TEXT_CENTER_OFFSET + instructionYOffset
             } else {
                 y = TEXT_CENTER_OFFSET + LABEL_DEFAULT_HEIGHT * 2 + instructionYOffset
             }
 
-            // --- X konumu ---
-            if centerInstructionToOuterCircle {
-                // Yarım daire merkezine göre ortala (backgroundView lokal koordinatında)
-                // outer center X'i backgroundView.bounds.midX olarak alıyoruz
-                var desiredLeft = backgroundView.bounds.midX - (w / 2) + instructionXOffset
+            // Varsayılan genişlik/marj
+            w = backgroundView.bounds.width - (instructionLeftMargin + instructionRightMargin)
+            x = instructionLeftMargin + instructionXOffset
 
-                // Kenarlara clamp (marjları dikkate alarak)
-                let minLeft = instructionLeftMargin
-                let maxLeft = backgroundView.bounds.width - instructionRightMargin - w
-                desiredLeft = max(minLeft, min(desiredLeft, maxLeft))
-                x = desiredLeft
+            // --- Daire içine sabitleme (iPad) ---
+            if constrainInstructionInsideCircle && backgroundViewType == .circle {
+                let pad = max(0, instructionInsidePadding)
+                // backgroundView zaten daire boyutunda
+                w = max(0, backgroundView.bounds.width - pad*2)
+                x = pad
             } else {
-                // Sadece marj + offset
-                var left = instructionLeftMargin + instructionXOffset
-                // Clamp
-                let minLeft: CGFloat = 0
-                let maxLeft = backgroundView.bounds.width - w
-                left = max(minLeft, min(left, maxLeft))
-                x = left
+                // clamp
+                x = max(0, min(x, backgroundView.bounds.width - w))
             }
 
             instructionView.frame = CGRect(x: x, y: y, width: w, height: 0)
@@ -521,7 +516,7 @@ extension Showcase {
         } else {
             // iPhone: instructionView, self içine ekleniyor
 
-            // --- Y konumu (üst/alt) + instructionYOffset ---
+            // Y konumu (üst/alt) + instructionYOffset
             if isAbove {
                 y = center.y
                     + TARGET_PADDING
@@ -534,39 +529,52 @@ extension Showcase {
                     + instructionYOffset
             }
 
-            // --- Width: sol/sağ marjlar ---
+            // Varsayılan genişlik/marj
             w = containerView.bounds.width - (instructionLeftMargin + instructionRightMargin)
-            w = max(0, w)
+            x = instructionLeftMargin + instructionXOffset
 
-            // --- X konumu ---
-            if centerInstructionToOuterCircle {
-                // Hedef/yarım daire merkezine göre ortala (self/container koordinatında)
-                var ocx: CGFloat = center.x
-                // İstersek ripple üzerinden daha doğru merkez:
-                if let ripple = targetRippleView, let oc = getOuterCircleCenterPoint(for: ripple) {
-                    ocx = oc.x
+            // --- Daire içine sabitleme (iPhone) ---
+            if constrainInstructionInsideCircle && backgroundViewType == .circle {
+                // Dairenin gerçek yarıçapını hesapla (outerCircleScale dâhil)
+                guard let ripple = targetRippleView else {
+                    // fallback: mevcut davranışa clamp
+                    x = max(0, min(x, containerView.bounds.width - w))
+                    instructionView.frame = CGRect(x: x, y: y, width: w, height: 0)
+                    addSubview(instructionView)
+                    return
                 }
-                var desiredLeft = ocx - (w / 2) + instructionXOffset
 
-                // Clamp (marjları dikkate al)
-                let minLeft = instructionLeftMargin
-                let maxLeft = containerView.bounds.width - instructionRightMargin - w
-                desiredLeft = max(minLeft, min(desiredLeft, maxLeft))
-                x = desiredLeft
-            } else {
-                // Sadece marj + offset
-                var left = instructionLeftMargin + instructionXOffset
-                // Clamp
+                // TextBounds = .zero verip sadece hedefe göre baz yarıçap al, sonra scale uygula
+                let baseRadius = getOuterCircleRadius(center: center,
+                                                      textBounds: .zero,
+                                                      targetBounds: ripple.frame)
+                let radius = max(0, baseRadius * outerCircleScale)
+
+                let circleRect = CGRect(x: center.x - radius,
+                                        y: center.y - radius,
+                                        width: radius * 2,
+                                        height: radius * 2)
+
+                let pad = max(0, instructionInsidePadding)
+                // Dairenin iç genişliği kadar sınırla
+                w = max(0, circleRect.width - pad*2)
+                // Kutuyu dairenin sol iç kenarına yerleştir (metin hizası .right ise sağ iç kenara yaslanır)
+                x = circleRect.minX + pad
+
+                // Ekran sınırlarına emniyet clamp (aşırı durumlar)
                 let minLeft: CGFloat = 0
                 let maxLeft = containerView.bounds.width - w
-                left = max(minLeft, min(left, maxLeft))
-                x = left
+                x = max(minLeft, min(x, maxLeft))
+            } else {
+                // clamp
+                x = max(0, min(x, containerView.bounds.width - w))
             }
 
             instructionView.frame = CGRect(x: x, y: y, width: w, height: 0)
             addSubview(instructionView)
         }
     }
+
 
     /// Handles user's tap
     private func tapGestureRecoganizer() -> UIGestureRecognizer {

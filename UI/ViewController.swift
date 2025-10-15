@@ -30,9 +30,10 @@ class ViewController: UIViewController {
         showcase1.primaryText = nil
         showcase1.secondaryText = "Click here go"
         showcase1.isTapRecognizerForTargetView = false
-        showcase1.outerCircleScale = 0.3
-        showcase1.secondaryTextAlignment = .left
-       // showcase1.setInstructionHorizontalMargins(left: 150, right: 0)
+        showcase1.outerCircleScale = 0.4
+        showcase1.primaryTextAlignment = .center
+        showcase1.secondaryTextAlignment = .center
+        showcase1.setInstructionHorizontalMargins(left: 20, right: 20)
         //showcase1.instructionYOffset = 100
         showcase1.centerInstructionToOuterCircle = true
         //showcase1.instructionXOffset = 250
@@ -46,30 +47,19 @@ class ViewController: UIViewController {
         showcase2.tag = 2
         showcase2.setTargetView(view:label)
         showcase2.delegate = self
-        showcase2.targetTintColor = UIColor.red
-        showcase2.targetHolderRadius = 50
-        //showcase2.targetHolderColor = UIColor.yellow
-        //showcase2.aniComeInDuration = 0.3
-        //showcase2.backgroundPromptColor = UIColor(hex:"#F6A9000")
-        //showcase2.aniRippleColor = UIColor(hex:"#F6A9000")
-        //showcase2.aniRippleAlpha = 0.2
-        showcase2.primaryText = "Action 1.1"
-        showcase2.secondaryText = "Click here to go into details detaylar"
-        showcase2.isTapRecognizerForTargetView = true
-        showcase2.primaryTextAlignment = .right
-        showcase2.secondaryTextAlignment = .right
-        showcase2.centerInstructionToOuterCircle = true
-               // Metin balonu konumu: sağa yaklaştır + biraz aşağı indir
-        //showcase2.instructionYOffset = 20
-       // showcase2.setInstructionHorizontalMargins(left: 24, right: 8) // sağ boşluğu azalt
-        //showcase2.instructionXOffset = 24
-               // Dış çember (arka plan balonu) küçültme
-        showcase2.outerCircleScale = 0.85
-        showcase2.outerCirclePadding = 24
+        showcase2.primaryText = nil
+        showcase2.secondaryText = "Click here to"
+        showcase2.secondaryTextAlignment = .center
+
         showcase2.backgroundViewType = .circle
-        showcase2.backgroundPromptColor = .systemBlue
-        showcase2.backgroundPromptColorAlpha = 0.90
-        
+        showcase2.constrainInstructionInsideCircle = false     // <-- dairenin içine sığdır
+        showcase2.instructionInsidePadding = 124               // içten pay (sağ iç kenara yaklaşım)
+  // opsiyonel (içine sığdırma bunu zaten çözüyor)
+        showcase2.setInstructionHorizontalMargins(left: 0, right: 0) // dış marjları sıfırla (gerek yok artık)
+        showcase2.instructionXOffset = 0                      // genelde gerekmez
+        showcase2.instructionYOffset = 0                      // dikey ayarı kendine göre
+
+        showcase2.outerCircleScale = 0.50
         sequence.target(showcase1).target(showcase2).start()
     }
 
