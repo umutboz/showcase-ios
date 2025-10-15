@@ -32,8 +32,9 @@ class ViewController: UIViewController {
         showcase1.isTapRecognizerForTargetView = false
         showcase1.outerCircleScale = 0.3
         showcase1.secondaryTextAlignment = .left
-        showcase1.setInstructionHorizontalMargins(left: 150, right: 0)
-        showcase1.instructionYOffset = 100
+       // showcase1.setInstructionHorizontalMargins(left: 150, right: 0)
+        //showcase1.instructionYOffset = 100
+        showcase1.centerInstructionToOuterCircle = true
         //showcase1.instructionXOffset = 250
         //showcase1.setInstructionHorizontalMargins(left: 150, right: 0)
         //showcase1.outerCirclePadding = 24
