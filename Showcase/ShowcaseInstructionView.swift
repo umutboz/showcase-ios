@@ -32,6 +32,9 @@ public class ShowcaseInstructionView: UIView {
     public var primaryTextAlignment: NSTextAlignment?
     public var secondaryTextAlignment: NSTextAlignment?
     
+    public var autoCenterDescriptionWhenNoTitle: Bool = true
+
+    
     public init() {
         // Create frame
         let frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 0)
@@ -169,43 +172,48 @@ public class ShowcaseInstructionView: UIView {
     /// Configures and adds secondary label view (description)
     private func addSecondaryLabelIfNeeded() {
         // Temizle
-           secondaryLabel?.removeFromSuperview()
-           secondaryLabel = nil
+        secondaryLabel?.removeFromSuperview()
+        secondaryLabel = nil
 
-           guard let text = secondaryText, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-               frame.size.height = 0
-               return
-           }
+        guard let text = secondaryText, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            frame.size.height = 0
+            return
+        }
 
-           let label = UILabel()
-           if let font = secondaryTextFont {
-               label.font = font
-           } else {
-               let size = secondaryTextSize ?? ShowcaseInstructionView.SECONDARY_TEXT_SIZE
-               label.font = UIFont.systemFont(ofSize: size)
-           }
-           label.textColor = secondaryTextColor
-           label.lineBreakMode = .byWordWrapping
-           label.numberOfLines = 0
-           label.text = text
+        let label = UILabel()
+        if let font = secondaryTextFont {
+            label.font = font
+        } else {
+            let size = secondaryTextSize ?? ShowcaseInstructionView.SECONDARY_TEXT_SIZE
+            label.font = UIFont.systemFont(ofSize: size)
+        }
+        label.textColor = secondaryTextColor
+        label.lineBreakMode = .byWordWrapping
+        label.numberOfLines = 0
+        label.text = text
 
-           // --- YENİ: Title yoksa yatay hizayı otomatik .center yap ---
-           if primaryLabel == nil {
-               label.textAlignment = .center
-           } else {
-               label.textAlignment = self.secondaryTextAlignment ?? .left
-           }
+        // --- YENİ HİZALAMA KURALI ---
+        // 1) Eğer dışarıdan secondaryTextAlignment verilmişse HER ZAMAN onu kullan.
+        // 2) Verilmemiş ve title yoksa -> .center
+        // 3) Verilmemiş ve title varsa -> .left (varsayılan)
+        if let explicitAlignment = self.secondaryTextAlignment {
+            label.textAlignment = explicitAlignment
+        } else if primaryLabel == nil && autoCenterDescriptionWhenNoTitle {
+            label.textAlignment = .center
+        } else {
+            label.textAlignment = .left
+        }
 
-           // Y konumu: title varsa altına, yoksa en üstten
-           let startY: CGFloat = (primaryLabel != nil) ? primaryLabel!.frame.height : 0
-           label.frame = CGRect(x: 0, y: startY, width: getWidth(), height: 0)
-           label.sizeToFitHeight()
-           addSubview(label)
-           secondaryLabel = label
+        // Y konumu: title varsa altına, yoksa en üstten
+        let startY: CGFloat = (primaryLabel != nil) ? primaryLabel!.frame.height : 0
+        label.frame = CGRect(x: 0, y: startY, width: getWidth(), height: 0)
+        label.sizeToFitHeight()
+        addSubview(label)
+        secondaryLabel = label
 
-           // Toplam yükseklik
-           let totalHeight = startY + label.frame.height
-           frame = CGRect(x: frame.minX, y: frame.minY, width: frame.width, height: totalHeight)
+        // Toplam yükseklik
+        let totalHeight = startY + label.frame.height
+        frame = CGRect(x: frame.minX, y: frame.minY, width: frame.width, height: totalHeight)
     }
     
     
