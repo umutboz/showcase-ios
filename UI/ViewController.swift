@@ -30,10 +30,12 @@ class ViewController: UIViewController {
         showcase1.primaryText = nil
         showcase1.secondaryText = "Click here go"
         showcase1.isTapRecognizerForTargetView = false
-        showcase1.outerCircleScale = 0.2
-        showcase1.instructionYOffset = 100
-        showcase1.instructionXOffset = 250
+        showcase1.outerCircleScale = 0.3
+        showcase1.secondaryTextAlignment = .left
         showcase1.setInstructionHorizontalMargins(left: 150, right: 0)
+        showcase1.instructionYOffset = 100
+        //showcase1.instructionXOffset = 250
+        //showcase1.setInstructionHorizontalMargins(left: 150, right: 0)
         //showcase1.outerCirclePadding = 24
         //showcase1.out
         showcase1.delegate = self
@@ -55,12 +57,11 @@ class ViewController: UIViewController {
         showcase2.isTapRecognizerForTargetView = true
         showcase2.primaryTextAlignment = .right
         showcase2.secondaryTextAlignment = .right
-
+        showcase2.centerInstructionToOuterCircle = true
                // Metin balonu konumu: sağa yaklaştır + biraz aşağı indir
-        showcase2.setInstructionHorizontalMargins(left: 32, right: 12) // sağ marjı düşür
-        showcase2.instructionYOffset = 20
-        showcase2.setInstructionHorizontalMargins(left: 24, right: 8) // sağ boşluğu azalt
-        showcase2.instructionXOffset = 24
+        //showcase2.instructionYOffset = 20
+       // showcase2.setInstructionHorizontalMargins(left: 24, right: 8) // sağ boşluğu azalt
+        //showcase2.instructionXOffset = 24
                // Dış çember (arka plan balonu) küçültme
         showcase2.outerCircleScale = 0.85
         showcase2.outerCirclePadding = 24

@@ -110,6 +110,7 @@ public class Showcase: UIView {
     @objc public var outerCircleScale: CGFloat = 1.0 {
         didSet { outerCircleScale = max(0.2, min(2.0, outerCircleScale)) }
     }
+    @objc public var centerInstructionToOuterCircle: Bool = true
 
     // Delegate
     @objc public weak var delegate: ShowcaseDelegate?
@@ -449,14 +450,14 @@ extension Showcase {
         addSubview(targetCopyView)
     }
 
-    /// Configures and adds primary label view
+    /// Configures and adds primary/secondary text container (instructionView)
     private func addInstructionView(at center: CGPoint) {
         instructionView = ShowcaseInstructionView()
         guard let instructionView = instructionView else { print("instructionView is null"); return }
         guard let targetView = targetView else { print("targetView is null"); return }
         guard let containerView = containerView else { print("containerView is null"); return }
 
-        // Text config
+        // --- Text config ---
         instructionView.primaryTextAlignment = primaryTextAlignment
         instructionView.primaryTextFont = primaryTextFont
         instructionView.primaryTextSize = primaryTextSize
@@ -469,45 +470,58 @@ extension Showcase {
         instructionView.secondaryTextColor = secondaryTextColor
         instructionView.secondaryText = secondaryText
 
+        // Eğer ShowcaseInstructionView'de bu bayrağı eklediysen default davranışı kontrol eder
+        // instructionView.autoCenterDescriptionWhenNoTitle = true
+
         let isAbove = (getTargetPosition(target: targetView, container: containerView) == .above)
 
-        var x: CGFloat
-        var y: CGFloat
-        var w: CGFloat
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var w: CGFloat = 0
 
         if UIDevice.current.userInterfaceIdiom == .pad {
+            // iPad: instructionView, backgroundView içine ekleniyor
             guard let backgroundView = backgroundView else { print("backgroundView is null"); return }
 
-            // Genişlik: sol/sağ marjlar
-            w = backgroundView.frame.width - (instructionLeftMargin + instructionRightMargin)
+            // --- Width: sol/sağ marjlarla belirle ---
+            w = backgroundView.bounds.width - (instructionLeftMargin + instructionRightMargin)
+            w = max(0, w)
 
-            // X: sol marj
-            x = instructionLeftMargin
-
-            // backgroundView ekranı dışına taşıyorsa telafi
-            if backgroundView.frame.origin.x < 0 {
-                x = abs(backgroundView.frame.origin.x) + instructionLeftMargin
-            } else if (backgroundView.frame.origin.x + backgroundView.frame.size.width) > UIScreen.main.bounds.width {
-                w = backgroundView.frame.size.width - (instructionLeftMargin + instructionRightMargin)
-            }
-
-            // Dikey konum + instructionYOffset
+            // --- Y konumu (üst/alt) + instructionYOffset ---
             if isAbove {
-                y = (backgroundView.frame.size.height / 2) + TEXT_CENTER_OFFSET + instructionYOffset
+                y = (backgroundView.bounds.height / 2) + TEXT_CENTER_OFFSET + instructionYOffset
             } else {
                 y = TEXT_CENTER_OFFSET + LABEL_DEFAULT_HEIGHT * 2 + instructionYOffset
             }
 
-            // Yatay ofset + clamp
-            x += instructionXOffset
-            x = max(0, min(x, backgroundView.frame.width - w))
+            // --- X konumu ---
+            if centerInstructionToOuterCircle {
+                // Yarım daire merkezine göre ortala (backgroundView lokal koordinatında)
+                // outer center X'i backgroundView.bounds.midX olarak alıyoruz
+                var desiredLeft = backgroundView.bounds.midX - (w / 2) + instructionXOffset
+
+                // Kenarlara clamp (marjları dikkate alarak)
+                let minLeft = instructionLeftMargin
+                let maxLeft = backgroundView.bounds.width - instructionRightMargin - w
+                desiredLeft = max(minLeft, min(desiredLeft, maxLeft))
+                x = desiredLeft
+            } else {
+                // Sadece marj + offset
+                var left = instructionLeftMargin + instructionXOffset
+                // Clamp
+                let minLeft: CGFloat = 0
+                let maxLeft = backgroundView.bounds.width - w
+                left = max(minLeft, min(left, maxLeft))
+                x = left
+            }
 
             instructionView.frame = CGRect(x: x, y: y, width: w, height: 0)
             backgroundView.addSubview(instructionView)
-        } else {
-            // iPhone
 
-            // Dikey konum: hedef üst/alt + instructionYOffset
+        } else {
+            // iPhone: instructionView, self içine ekleniyor
+
+            // --- Y konumu (üst/alt) + instructionYOffset ---
             if isAbove {
                 y = center.y
                     + TARGET_PADDING
@@ -520,14 +534,34 @@ extension Showcase {
                     + instructionYOffset
             }
 
-            // Genişlik: sol/sağ marjlar
-            w = containerView.frame.width - (instructionLeftMargin + instructionRightMargin)
+            // --- Width: sol/sağ marjlar ---
+            w = containerView.bounds.width - (instructionLeftMargin + instructionRightMargin)
+            w = max(0, w)
 
-            // X: sol marj + instructionXOffset
-            x = instructionLeftMargin + instructionXOffset
+            // --- X konumu ---
+            if centerInstructionToOuterCircle {
+                // Hedef/yarım daire merkezine göre ortala (self/container koordinatında)
+                var ocx: CGFloat = center.x
+                // İstersek ripple üzerinden daha doğru merkez:
+                if let ripple = targetRippleView, let oc = getOuterCircleCenterPoint(for: ripple) {
+                    ocx = oc.x
+                }
+                var desiredLeft = ocx - (w / 2) + instructionXOffset
 
-            // Kenara taşmayı engelle
-            x = max(0, min(x, containerView.frame.width - w))
+                // Clamp (marjları dikkate al)
+                let minLeft = instructionLeftMargin
+                let maxLeft = containerView.bounds.width - instructionRightMargin - w
+                desiredLeft = max(minLeft, min(desiredLeft, maxLeft))
+                x = desiredLeft
+            } else {
+                // Sadece marj + offset
+                var left = instructionLeftMargin + instructionXOffset
+                // Clamp
+                let minLeft: CGFloat = 0
+                let maxLeft = containerView.bounds.width - w
+                left = max(minLeft, min(left, maxLeft))
+                x = left
+            }
 
             instructionView.frame = CGRect(x: x, y: y, width: w, height: 0)
             addSubview(instructionView)
