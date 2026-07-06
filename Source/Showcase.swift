@@ -658,7 +658,18 @@ extension Showcase {
 
     // Gets all UIView from TabBarItem.
     func orderedTabBarItemViews(of tabBar: UITabBar) -> [UIView] {
-        let interactionViews = tabBar.subviews.filter { $0.isUserInteractionEnabled }
+        if let items = tabBar.items {
+            let views = items.compactMap { $0.value(forKey: "view") as? UIView }
+            if views.count == items.count {
+                return views
+            }
+        }
+        
+        // Fallback: if something goes wrong
+        let interactionViews = tabBar.subviews.filter {
+            $0.isUserInteractionEnabled &&
+            NSStringFromClass(type(of: $0)).contains("Button")
+        }
         return interactionViews.sorted(by: { $0.frame.minX < $1.frame.minX })
     }
 }
